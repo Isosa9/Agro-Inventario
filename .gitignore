@@ -1,0 +1,22 @@
+# Secretos: NUNCA subir a GitHub
+.env
+
+# Entorno virtual
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Pruebas
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editor / sistema
+.vscode/
+Thumbs.db
+.DS_Store
