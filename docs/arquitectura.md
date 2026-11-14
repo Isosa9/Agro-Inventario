@@ -19,7 +19,11 @@
 **Reglas:** nombre obligatorio y único; precio > 0; cantidad >= 0 (decimales permitidos);
 venta con al menos un producto y cantidades > 0; secretos solo en `.env`.
 
-**Fuera de alcance (YAGNI):** usuarios/roles, proveedores, compras, facturación, interfaz web.
+**Fuera de alcance (YAGNI):** roles y permisos, proveedores, compras, facturación.
+
+**Requisitos de publicación (agregados en la Etapa 4):** sitio en HTTPS (Vercel), PWA instalable,
+diseño responsive, SEO y Open Graph, headers de seguridad, página 404, robots.txt, healthcheck JSON,
+login real y portal privado que no muestre datos sin sesión.
 
 ## 2. Modelo de datos (Supabase / PostgreSQL)
 
@@ -52,9 +56,12 @@ Scripts en `supabase/migraciones/` (ejecutar en orden) o `supabase/instalacion_c
 ## 3. Capas de la aplicación
 
 ```
-CLI → Servicios → (Validadores, Repositorios) → Cliente Supabase
+Web (FastAPI) → Servicios → (Validadores, Repositorios) → Cliente Supabase
 Modelos: compartidos por todas las capas
 ```
+
+Despliegue: `app.py` (raíz) expone la app de FastAPI para Vercel; `public/` lo sirve el CDN de Vercel;
+`vercel.json` define los headers de seguridad. La interfaz web reemplaza a la CLI planeada originalmente.
 
 | Capa | Responsabilidad |
 |---|---|
@@ -62,6 +69,7 @@ Modelos: compartidos por todas las capas
 | `validadores/` | Verificar datos de entrada |
 | `repositorios/` | Leer/escribir en Supabase, sin lógica de negocio |
 | `servicios/` | Reglas de negocio; reciben repositorios por parámetro (mockeables) |
+| `web/` | Rutas HTML, healthcheck y manejo de errores |
 | `db/cliente.py` | Crear la conexión una sola vez |
 | `config.py` | Leer `.env` |
 | `errores.py` | Excepciones propias |
@@ -82,9 +90,10 @@ Commits con Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`
 |---|---|---|
 | 1. Requisitos y arquitectura | ✅ | Este documento |
 | 2. Base de datos | ✅ | 5 tablas, función de venta atómica, 58 productos, 7 verificaciones SQL |
-| 3. Entorno Python + Git | ✅ | Config, conexión, pruebas unitarias e integración |
-| 4. Modelos y validadores | ⏳ | |
-| 5. Productos | ⏳ | |
-| 6. Ventas | ⏳ | |
-| 7. Reportes | ⏳ | |
-| 8. CLI y documentación final | ⏳ | |
+| 3. Entorno Python + Git | ✅ | Config, conexión, CI con GitHub Actions, 12 pruebas |
+| 4. Sitio web en Vercel | 🔄 | FastAPI, PWA, SEO, headers, 404, healthcheck; 39 pruebas unitarias |
+| 5. Login y portal privado | ⏳ | |
+| 6. Modelos y validadores | ⏳ | |
+| 7. Productos | ⏳ | |
+| 8. Ventas | ⏳ | |
+| 9. Reportes | ⏳ | |

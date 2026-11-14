@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}AgroInventario · Inventario y ventas para agrocomerciales{% endblock %}</title>
+  <meta name="description" content="{% block descripcion %}Sistema de inventario y ventas para agrocomerciales: controla existencias de productos veterinarios, agroquímicos y concentrados, registra ventas y consulta tus ingresos diarios.{% endblock %}">
+  <meta name="verificacion" content="{{ codigo_verificacion }}">
+  <meta name="theme-color" content="#2f6b3a">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AgroInventario">
+  <meta property="og:title" content="{{ self.titulo() }}">
+  <meta property="og:description" content="{{ self.descripcion() }}">
+  <meta property="og:url" content="{{ url_absoluta(request, request.url.path) }}">
+  <meta property="og:image" content="{{ url_absoluta(request, '/og-image.png') }}">
+  <meta property="og:locale" content="es_HN">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/iconos/icono-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/iconos/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/css/estilos.css">
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+  <header class="encabezado">
+    <a class="marca" href="/">
+      <img src="/iconos/icono-192.png" alt="" width="36" height="36">
+      <span>AgroInventario</span>
+    </a>
+  </header>
+
+  <main class="contenido">
+    {% block contenido %}{% endblock %}
+  </main>
+
+  <footer class="pie">
+    <p>AgroInventario · Inventario y ventas para agrocomerciales</p>
+    <p class="verificacion">Código de verificación: <code>{{ codigo_verificacion }}</code></p>
+  </footer>
+</body>
+</html>
