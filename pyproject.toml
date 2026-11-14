@@ -4,21 +4,28 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agro-inventario"
-version = "0.1.0"
+version = "0.2.0"
 description = "Sistema de inventario y ventas para una agrocomercial"
 requires-python = ">=3.11"
 dependencies = [
     "supabase>=2.0,<3",
     "python-dotenv>=1.0",
+    "fastapi>=0.115",
+    "jinja2>=3.1",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
+    "httpx>=0.27",
+    "uvicorn>=0.30",
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"inventario.web" = ["templates/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -26,4 +33,7 @@ addopts = "-ra"
 markers = [
     "integracion: pruebas que se conectan a la base de datos real de Supabase",
 ]
-filterwarnings = ["ignore:The '(timeout|verify)' parameter is deprecated:DeprecationWarning"]
+filterwarnings = [
+    "ignore:The '(timeout|verify)' parameter is deprecated:DeprecationWarning",
+    "ignore:Using `httpx` with `starlette.testclient` is deprecated",
+]
