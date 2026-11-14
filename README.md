@@ -26,7 +26,9 @@ agroquímicos y concentrados que se venden por unidad o por peso (libras, quinta
 | Herramienta | Uso |
 |---|---|
 | Python 3.11+ | Lenguaje principal |
+| FastAPI + Jinja2 | Aplicación web y API JSON |
 | Supabase (PostgreSQL) | Base de datos |
+| Vercel | Publicación del sitio (HTTPS) |
 | pytest | Pruebas unitarias y de integración |
 | GitHub Actions | Integración continua (ejecuta las pruebas en cada push) |
 | Git + GitHub Flow | Control de versiones con ramas y Pull Requests |
@@ -34,8 +36,10 @@ agroquímicos y concentrados que se venden por unidad o por peso (libras, quinta
 ## Arquitectura
 
 ```
-CLI → Servicios → (Validadores, Repositorios) → Cliente Supabase
+Web (FastAPI) → Servicios → (Validadores, Repositorios) → Cliente Supabase
 ```
+
+- **Web:** páginas HTML, healthcheck `/api/health` y PWA (manifest, service worker, íconos).
 
 - **Modelos:** representan los datos del dominio (`Producto`, `Venta`, `DetalleVenta`).
 - **Validadores:** reglas de entrada (precio > 0, cantidad >= 0, venta no vacía).
@@ -70,6 +74,14 @@ copy env.example .env      # completar SUPABASE_URL y SUPABASE_KEY (clave secret
 Base de datos: en Supabase > SQL Editor ejecutar `supabase/instalacion_completa.sql`
 y luego `supabase/verificacion_etapa2.sql`.
 
+## Ejecutar el sitio en tu computadora
+
+```powershell
+uvicorn app:app --reload
+```
+
+Abre http://127.0.0.1:8000. El healthcheck está en http://127.0.0.1:8000/api/health.
+
 ## Pruebas
 
 ```powershell
@@ -83,12 +95,15 @@ Las pruebas de integración se omiten automáticamente si no existe el archivo `
 ## Estructura
 
 ```
-src/inventario/        código de la aplicación
+app.py                 punto de entrada para Vercel
+src/inventario/        código de la aplicación (web/, db/, config...)
+public/                archivos estáticos: CSS, JS, PWA, íconos, robots.txt
 tests/unitarias/       pruebas aisladas con mocks
 tests/integracion/     pruebas contra Supabase real
 supabase/              scripts SQL (esquema, función de venta, datos)
 docs/                  arquitectura y bitácora
 .github/workflows/     integración continua
+vercel.json            configuración de Vercel y headers de seguridad
 ```
 
 ## Principios aplicados
@@ -103,8 +118,9 @@ secretos fuera del repositorio (`.env` en `.gitignore`).
 | 1. Requisitos y arquitectura | ✅ |
 | 2. Base de datos | ✅ |
 | 3. Entorno, conexión y pruebas | ✅ |
-| 4. Modelos y validadores | ⏳ |
-| 5. Productos | ⏳ |
-| 6. Ventas | ⏳ |
-| 7. Reportes | ⏳ |
-| 8. Interfaz de línea de comandos | ⏳ |
+| 4. Sitio web publicado en Vercel (PWA, SEO, healthcheck) | 🔄 |
+| 5. Login y portal privado | ⏳ |
+| 6. Modelos y validadores | ⏳ |
+| 7. Productos | ⏳ |
+| 8. Ventas | ⏳ |
+| 9. Reportes | ⏳ |
