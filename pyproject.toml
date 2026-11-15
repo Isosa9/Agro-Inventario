@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agro-inventario"
-version = "0.2.0"
+version = "0.3.0"
 description = "Sistema de inventario y ventas para una agrocomercial"
 requires-python = ">=3.11"
 dependencies = [
@@ -12,6 +12,7 @@ dependencies = [
     "python-dotenv>=1.0",
     "fastapi>=0.115",
     "jinja2>=3.1",
+    "python-multipart>=0.0.9",
 ]
 
 [project.optional-dependencies]
