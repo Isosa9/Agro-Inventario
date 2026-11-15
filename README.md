@@ -51,7 +51,11 @@ Web (FastAPI) → Servicios → (Validadores, Repositorios) → Cliente Supabase
 La venta se registra con una **función atómica de PostgreSQL** (`registrar_venta`): valida existencias,
 descuenta el inventario y guarda la venta en una sola transacción. Si un producto no alcanza, no se guarda nada.
 
-Detalle completo en [docs/arquitectura.md](docs/arquitectura.md).
+Detalle completo, con diagramas C4, en [docs/arquitectura.md](docs/arquitectura.md).
+
+Decisiones de arquitectura (ADRs):
+- [ADR-001: PostgreSQL gestionado en Supabase con venta atómica](docs/adr/ADR-001-persistencia.md)
+- [ADR-002: Supabase Auth con sesión en cookie HttpOnly](docs/adr/ADR-002-autenticacion.md)
 
 ## Modelo de datos
 
