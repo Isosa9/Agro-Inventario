@@ -40,6 +40,8 @@ Web (FastAPI) → Servicios → (Validadores, Repositorios) → Cliente Supabase
 ```
 
 - **Web:** páginas HTML, healthcheck `/api/health` y PWA (manifest, service worker, íconos).
+- **Sesión:** login con Supabase Auth; la sesión viaja en una cookie `HttpOnly` y `Secure`.
+  `/portal` exige sesión válida en el servidor: sin ella redirige a `/login` sin consultar datos.
 
 - **Modelos:** representan los datos del dominio (`Producto`, `Venta`, `DetalleVenta`).
 - **Validadores:** reglas de entrada (precio > 0, cantidad >= 0, venta no vacía).
@@ -73,6 +75,19 @@ copy env.example .env      # completar SUPABASE_URL y SUPABASE_KEY (clave secret
 
 Base de datos: en Supabase > SQL Editor ejecutar `supabase/instalacion_completa.sql`
 y luego `supabase/verificacion_etapa2.sql`.
+
+## Sitio publicado
+
+- Inicio: https://agro-inventario-one.vercel.app
+- Login: https://agro-inventario-one.vercel.app/login
+- Portal privado: https://agro-inventario-one.vercel.app/portal
+- Healthcheck: https://agro-inventario-one.vercel.app/api/health
+
+## Usuarios
+
+No hay registro público: es un sistema interno. Las cuentas se crean en Supabase
+(*Authentication → Users → Add user → Create new user*, con "Auto Confirm User").
+Cada persona usa su propia cuenta; nunca se comparten contraseñas.
 
 ## Ejecutar el sitio en tu computadora
 
@@ -118,8 +133,8 @@ secretos fuera del repositorio (`.env` en `.gitignore`).
 | 1. Requisitos y arquitectura | ✅ |
 | 2. Base de datos | ✅ |
 | 3. Entorno, conexión y pruebas | ✅ |
-| 4. Sitio web publicado en Vercel (PWA, SEO, healthcheck) | 🔄 |
-| 5. Login y portal privado | ⏳ |
+| 4. Sitio web publicado en Vercel (PWA, SEO, healthcheck) | ✅ |
+| 5. Login y portal privado | ✅ |
 | 6. Modelos y validadores | ⏳ |
 | 7. Productos | ⏳ |
 | 8. Ventas | ⏳ |
