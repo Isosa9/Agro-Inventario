@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block titulo %}Ingresar · AgroInventario{% endblock %}
+{% block descripcion %}Inicia sesión en AgroInventario para administrar el inventario y las ventas de tu agrocomercial.{% endblock %}
+{% block navegacion %}{% endblock %}
+
+{% block contenido %}
+<section class="panel-login">
+  <h1>Ingresar</h1>
+  <p class="bajada">Usa el correo y la contraseña de tu cuenta.</p>
+
+  {% if error %}
+  <p class="alerta" role="alert">{{ error }}</p>
+  {% endif %}
+
+  <form class="formulario" method="post" action="/login">
+    <label for="correo">Correo electrónico</label>
+    <input id="correo" name="correo" type="email" autocomplete="username"
+           value="{{ correo or '' }}" required autofocus>
+
+    <label for="contrasena">Contraseña</label>
+    <input id="contrasena" name="contrasena" type="password"
+           autocomplete="current-password" required>
+
+    <button class="boton" type="submit">Ingresar</button>
+  </form>
+</section>
+{% endblock %}

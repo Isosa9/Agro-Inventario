@@ -28,6 +28,26 @@ a { color: var(--verde); }
 .encabezado {
   background: var(--verde);
   padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.navegacion {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navegacion form { margin: 0; }
+
+.usuario {
+  color: #fff;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  word-break: break-all;
 }
 
 .marca {
@@ -96,7 +116,73 @@ a { color: var(--verde); }
   font-weight: 600;
 }
 
+.boton {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
 .boton:hover, .boton:focus-visible { background: var(--verde-oscuro); }
+
+.boton-claro {
+  background: #fff;
+  color: var(--verde);
+  padding: 0.45rem 0.9rem;
+}
+
+.boton-claro:hover, .boton-claro:focus-visible { background: var(--crema); }
+
+/* Login */
+.panel-login {
+  max-width: 420px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 1.5rem;
+}
+
+.panel-login h1 { margin-top: 0; color: var(--verde-oscuro); }
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.formulario label { font-weight: 600; margin-top: 0.6rem; }
+
+.formulario input {
+  font: inherit;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+
+.formulario input:focus-visible {
+  outline: 3px solid rgba(47, 107, 58, 0.35);
+  border-color: var(--verde);
+}
+
+.formulario .boton { margin-top: 1rem; }
+
+.alerta {
+  background: #fdecea;
+  color: #8a1c12;
+  border: 1px solid #f5c2bd;
+  border-radius: 8px;
+  padding: 0.65rem 0.8rem;
+}
+
+/* Portal */
+.indicador .cifra {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--verde-oscuro);
+  margin: 0.25rem 0 0;
+}
+
+.alerta-borde { border-top-color: #c0392b; }
 
 .pie {
   text-align: center;
@@ -111,6 +197,7 @@ a { color: var(--verde); }
 /* Tablet */
 @media (min-width: 640px) {
   .portada h1 { font-size: 2.3rem; }
+  .panel-login { padding: 2rem; }
   .tarjetas { grid-template-columns: repeat(2, 1fr); }
   .contenido { padding: 3rem 1.5rem; }
 }

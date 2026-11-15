@@ -11,3 +11,7 @@ class InventarioError(Exception):
 
 class ConfiguracionError(InventarioError):
     """Falta o es inválida la configuración (archivo .env)."""
+
+
+class AutenticacionError(InventarioError):
+    """No se pudo iniciar sesión (credenciales inválidas o servicio no disponible)."""

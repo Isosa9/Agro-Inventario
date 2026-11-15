@@ -7,6 +7,7 @@
   <meta name="description" content="{% block descripcion %}Sistema de inventario y ventas para agrocomerciales: controla existencias de productos veterinarios, agroquímicos y concentrados, registra ventas y consulta tus ingresos diarios.{% endblock %}">
   <meta name="verificacion" content="{{ codigo_verificacion }}">
   <meta name="theme-color" content="#2f6b3a">
+  {% block meta_extra %}{% endblock %}
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="AgroInventario">
@@ -30,6 +31,9 @@
       <img src="/iconos/icono-192.png" alt="" width="36" height="36">
       <span>AgroInventario</span>
     </a>
+    <nav class="navegacion" aria-label="Principal">
+      {% block navegacion %}<a class="boton boton-claro" href="/login">Ingresar</a>{% endblock %}
+    </nav>
   </header>
 
   <main class="contenido">

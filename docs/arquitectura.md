@@ -69,10 +69,23 @@ Despliegue: `app.py` (raíz) expone la app de FastAPI para Vercel; `public/` lo 
 | `validadores/` | Verificar datos de entrada |
 | `repositorios/` | Leer/escribir en Supabase, sin lógica de negocio |
 | `servicios/` | Reglas de negocio; reciben repositorios por parámetro (mockeables) |
-| `web/` | Rutas HTML, healthcheck y manejo de errores |
+| `web/app.py` | Arma la aplicación: rutas, healthcheck, errores |
+| `web/sesion.py` | Login, logout y dependencia `correo_requerido` |
+| `web/autenticacion.py` | Habla con Supabase Auth (iniciar sesión, validar token) |
+| `web/portal.py` | Portal privado; su repositorio depende de la sesión |
+| `web/plantillas.py` | Configuración única de Jinja2 |
 | `db/cliente.py` | Crear la conexión una sola vez |
 | `config.py` | Leer `.env` |
 | `errores.py` | Excepciones propias |
+
+### Seguridad de la sesión
+
+- Supabase Auth guarda las contraseñas cifradas; no se implementa un sistema propio.
+- Cookie `sesion`: `HttpOnly` (JavaScript no la lee), `Secure` (solo HTTPS), `SameSite=Lax`, dura lo mismo que el token (1 h).
+- Cada visita a `/portal` valida el token con Supabase. La dependencia del repositorio requiere sesión,
+  así que sin sesión no se consulta la base de datos.
+- El portal responde con `Cache-Control: no-store` y `noindex`.
+- Auth usa un cliente de Supabase aparte para no alterar el cliente compartido que usa la clave del servidor.
 
 ## 4. Pruebas
 
@@ -91,8 +104,8 @@ Commits con Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`
 | 1. Requisitos y arquitectura | ✅ | Este documento |
 | 2. Base de datos | ✅ | 5 tablas, función de venta atómica, 58 productos, 7 verificaciones SQL |
 | 3. Entorno Python + Git | ✅ | Config, conexión, CI con GitHub Actions, 12 pruebas |
-| 4. Sitio web en Vercel | 🔄 | FastAPI, PWA, SEO, headers, 404, healthcheck; 39 pruebas unitarias |
-| 5. Login y portal privado | ⏳ | |
+| 4. Sitio web en Vercel | ✅ | FastAPI, PWA, SEO, headers, 404, healthcheck; 18/20 en la plataforma |
+| 5. Login y portal privado | ✅ | Supabase Auth, cookie HttpOnly/Secure, portal protegido en servidor; 60 pruebas unitarias |
 | 6. Modelos y validadores | ⏳ | |
 | 7. Productos | ⏳ | |
 | 8. Ventas | ⏳ | |

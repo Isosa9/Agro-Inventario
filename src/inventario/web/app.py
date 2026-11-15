@@ -1,34 +1,21 @@
-"""Aplicación web: rutas HTML, healthcheck JSON y manejo de errores 404."""
+"""Aplicación web: arma las rutas, el healthcheck y el manejo de errores."""
 
 import os
 from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from inventario import CODIGO_VERIFICACION, __version__
-from inventario.web import salud
-
-templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
-templates.env.globals.update(codigo_verificacion=CODIGO_VERIFICACION)
+from inventario import __version__
+from inventario.web import portal, salud, sesion
+from inventario.web.plantillas import templates
 
 app = FastAPI(title="AgroInventario", version=__version__, docs_url=None, redoc_url=None)
-
-
-def url_absoluta(request: Request, ruta: str) -> str:
-    """URL completa (https://dominio/ruta), necesaria para Open Graph.
-
-    Detrás del proxy de Vercel el esquema real llega en x-forwarded-proto.
-    """
-    esquema = request.headers.get("x-forwarded-proto", request.url.scheme)
-    return f"{esquema}://{request.url.netloc}{ruta}"
-
-
-templates.env.globals.update(url_absoluta=url_absoluta)
+app.include_router(sesion.router)
+app.include_router(portal.router)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -50,12 +37,9 @@ def healthcheck():
     )
 
 
-CARPETA_PUBLIC = Path(__file__).resolve().parents[3] / "public"
-
-# En Vercel, la carpeta public/ la sirve su CDN (variable VERCEL presente).
-# En tu computadora la sirve FastAPI, para poder ver la página completa con estilos.
-if not os.getenv("VERCEL") and CARPETA_PUBLIC.is_dir():
-    app.mount("/", StaticFiles(directory=CARPETA_PUBLIC), name="public")
+@app.exception_handler(sesion.SesionRequerida)
+def redirigir_a_login(request: Request, error: sesion.SesionRequerida):
+    return RedirectResponse("/login", status_code=303)
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -65,3 +49,12 @@ def pagina_de_error(request: Request, error: StarletteHTTPException):
             return JSONResponse({"error": "Recurso no encontrado"}, status_code=404)
         return templates.TemplateResponse(request, "404.html", status_code=404)
     return JSONResponse({"error": error.detail}, status_code=error.status_code)
+
+
+CARPETA_PUBLIC = Path(__file__).resolve().parents[3] / "public"
+
+# En Vercel, la carpeta public/ la sirve su CDN (variable VERCEL presente).
+# En tu computadora la sirve FastAPI, para poder ver la página completa con estilos.
+# Debe ir al final: las rutas definidas arriba tienen prioridad.
+if not os.getenv("VERCEL") and CARPETA_PUBLIC.is_dir():
+    app.mount("/", StaticFiles(directory=CARPETA_PUBLIC), name="public")
