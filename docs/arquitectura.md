@@ -175,7 +175,11 @@ Decisiones (detalle en [ADR-001](adr/ADR-001-persistencia.md)):
 - `registrar_venta(jsonb)`: función atómica con `FOR UPDATE`; todo o nada.
   Códigos: `AG001` venta vacía, `AG002` cantidad inválida, `AG003` producto no existe,
   `AG004` stock insuficiente, `AG005` producto repetido.
-- RLS activo sin políticas públicas; el backend usa la clave secreta.
+- RLS activo en las 5 tablas, con políticas `RESTRICTIVE` `denegar_clientes_<tabla>` para los roles
+  `anon` y `authenticated`: los clientes nunca acceden directo a las tablas; solo el backend, con la clave
+  `service_role`, lee y escribe (migración 004).
+- `exportar_esquema()` lee el catálogo de PostgreSQL y genera el esquema real en JSON;
+  `python -m inventario.herramientas.exportar_esquema` lo guarda en [`docs/db-export.json`](db-export.json).
 
 Scripts en `supabase/migraciones/` (ejecutar en orden) o `supabase/instalacion_completa.sql`.
 
@@ -227,6 +231,7 @@ Commits con Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`
 | 4. Sitio web en Vercel | ✅ | FastAPI, PWA, SEO, headers, 404, healthcheck |
 | 5. Login y portal privado | ✅ | Supabase Auth, cookie HttpOnly/Secure, portal protegido; 20/20 en la plataforma |
 | Documentación C4 + ADRs | ✅ | Diagramas de contexto, contenedores y componentes; ADR-001 y ADR-002 |
+| Modelo de datos exportado | ✅ | Políticas RLS explícitas, `exportar_esquema()`, `docs/db-export.json` |
 | 6. Modelos y validadores | ⏳ | |
 | 7. Productos | ⏳ | |
 | 8. Ventas | ⏳ | |
