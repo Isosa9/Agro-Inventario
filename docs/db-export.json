@@ -1,0 +1,230 @@
+{
+  "generado_at": "2026-11-16T00:40:48Z",
+  "motor": "postgres",
+  "tablas": [
+    {
+      "filas": 10,
+      "nombre": "categoria",
+      "indices": [
+        "categoria_nombre_key",
+        "categoria_pkey"
+      ],
+      "columnas": [
+        {
+          "pk": true,
+          "nulo": false,
+          "tipo": "bigint",
+          "nombre": "id"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "text",
+          "nombre": "nombre"
+        }
+      ],
+      "relaciones": [],
+      "rls_activo": true,
+      "politicas_rls": [
+        "denegar_clientes_categoria"
+      ]
+    },
+    {
+      "filas": 0,
+      "nombre": "detalle_venta",
+      "indices": [
+        "detalle_venta_pkey",
+        "detalle_venta_venta_id_producto_id_key",
+        "idx_detalle_producto"
+      ],
+      "columnas": [
+        {
+          "pk": true,
+          "nulo": false,
+          "tipo": "bigint",
+          "nombre": "id"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "bigint",
+          "nombre": "venta_id"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "bigint",
+          "nombre": "producto_id"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "numeric(12,3)",
+          "nombre": "cantidad"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "numeric(12,2)",
+          "nombre": "precio_unitario"
+        },
+        {
+          "pk": false,
+          "nulo": true,
+          "tipo": "numeric(12,2)",
+          "nombre": "subtotal"
+        }
+      ],
+      "relaciones": [
+        {
+          "columna": "producto_id",
+          "referencia": "producto.id"
+        },
+        {
+          "columna": "venta_id",
+          "referencia": "venta.id"
+        }
+      ],
+      "rls_activo": true,
+      "politicas_rls": [
+        "denegar_clientes_detalle_venta"
+      ]
+    },
+    {
+      "filas": 58,
+      "nombre": "producto",
+      "indices": [
+        "idx_producto_categoria",
+        "idx_producto_unidad",
+        "producto_nombre_key",
+        "producto_pkey"
+      ],
+      "columnas": [
+        {
+          "pk": true,
+          "nulo": false,
+          "tipo": "bigint",
+          "nombre": "id"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "text",
+          "nombre": "nombre"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "numeric(12,2)",
+          "nombre": "precio"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "numeric(12,3)",
+          "nombre": "cantidad"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "bigint",
+          "nombre": "categoria_id"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "bigint",
+          "nombre": "unidad_medida_id"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "timestamp with time zone",
+          "nombre": "creado_en"
+        }
+      ],
+      "relaciones": [
+        {
+          "columna": "categoria_id",
+          "referencia": "categoria.id"
+        },
+        {
+          "columna": "unidad_medida_id",
+          "referencia": "unidad_medida.id"
+        }
+      ],
+      "rls_activo": true,
+      "politicas_rls": [
+        "denegar_clientes_producto"
+      ]
+    },
+    {
+      "filas": 5,
+      "nombre": "unidad_medida",
+      "indices": [
+        "unidad_medida_abreviatura_key",
+        "unidad_medida_nombre_key",
+        "unidad_medida_pkey"
+      ],
+      "columnas": [
+        {
+          "pk": true,
+          "nulo": false,
+          "tipo": "bigint",
+          "nombre": "id"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "text",
+          "nombre": "nombre"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "text",
+          "nombre": "abreviatura"
+        }
+      ],
+      "relaciones": [],
+      "rls_activo": true,
+      "politicas_rls": [
+        "denegar_clientes_unidad_medida"
+      ]
+    },
+    {
+      "filas": 0,
+      "nombre": "venta",
+      "indices": [
+        "idx_venta_fecha",
+        "venta_pkey"
+      ],
+      "columnas": [
+        {
+          "pk": true,
+          "nulo": false,
+          "tipo": "bigint",
+          "nombre": "id"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "timestamp with time zone",
+          "nombre": "fecha"
+        },
+        {
+          "pk": false,
+          "nulo": false,
+          "tipo": "numeric(12,2)",
+          "nombre": "total"
+        }
+      ],
+      "relaciones": [],
+      "rls_activo": true,
+      "politicas_rls": [
+        "denegar_clientes_venta"
+      ]
+    }
+  ],
+  "version_motor": "17.11"
+}
