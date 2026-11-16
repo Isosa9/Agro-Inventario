@@ -78,7 +78,14 @@ copy env.example .env      # completar SUPABASE_URL y SUPABASE_KEY (clave secret
 ```
 
 Base de datos: en Supabase > SQL Editor ejecutar `supabase/instalacion_completa.sql`
-y luego `supabase/verificacion_etapa2.sql`.
+y luego `supabase/verificacion_etapa2.sql`. En una base existente, ejecutar solo las migraciones nuevas
+de `supabase/migraciones/`.
+
+Exportar el esquema real a `docs/db-export.json`:
+
+```powershell
+python -m inventario.herramientas.exportar_esquema
+```
 
 ## Sitio publicado
 
@@ -89,7 +96,8 @@ y luego `supabase/verificacion_etapa2.sql`.
 
 ## Usuarios
 
-No hay registro público: es un sistema interno. Las cuentas se crean en Supabase
+No hay registro público: es un sistema interno. En Supabase, *Authentication → Sign In / Providers*,
+la opción **"Allow new users to sign up" está desactivada**. Las cuentas se crean desde el panel
 (*Authentication → Users → Add user → Create new user*, con "Auto Confirm User").
 Cada persona usa su propia cuenta; nunca se comparten contraseñas.
 

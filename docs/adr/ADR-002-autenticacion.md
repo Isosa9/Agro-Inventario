@@ -28,7 +28,9 @@ Solo la dueña y personas autorizadas deben acceder. Condiciones:
 
 **Usar Supabase Auth con sesión en cookie HttpOnly validada en el servidor.**
 
-1. Las cuentas se crean en Supabase Auth (correo y contraseña); no hay registro público.
+1. Las cuentas se crean en Supabase Auth (correo y contraseña). El registro público está **desactivado**
+   (*Allow new users to sign up = off*): sin esto, cualquiera con la clave pública podría crearse una cuenta
+   por la API de Supabase y entrar al portal.
 2. `POST /login` envía las credenciales a Supabase Auth desde el servidor. Si son correctas, la respuesta
    guarda el token de acceso en la cookie `sesion` con `HttpOnly`, `Secure`, `SameSite=Lax` y la misma
    duración que el token (1 hora).
