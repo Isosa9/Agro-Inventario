@@ -46,7 +46,8 @@ def test_inicio_incluye_etiqueta(pagina_inicio, fragmento):
 
 
 def test_meta_description_tiene_al_menos_40_caracteres(pagina_inicio):
-    inicio = pagina_inicio.text.index('name="description" content="') + len('name="description" content="')
+    marcador = 'name="description" content="'
+    inicio = pagina_inicio.text.index(marcador) + len(marcador)
     descripcion = pagina_inicio.text[inicio:pagina_inicio.text.index('"', inicio)]
     assert len(descripcion) >= 40
 
@@ -112,3 +113,46 @@ def test_en_local_se_sirven_los_archivos_de_public(cliente_http):
 
     assert respuesta.status_code == 200
     assert "@media" in respuesta.text
+
+
+# ---------- Errores inesperados (500) ----------
+
+@pytest.fixture
+def navegador_tolerante():
+    # raise_server_exceptions=False: ver la respuesta que recibe el usuario, no la excepción
+    return TestClient(app, raise_server_exceptions=False)
+
+
+def test_error_inesperado_muestra_pagina_500_y_lo_registra(
+    navegador_tolerante, monkeypatch, caplog
+):
+    def falla():
+        raise RuntimeError("fallo simulado")
+
+    monkeypatch.setattr(salud, "base_de_datos_disponible", falla)
+
+    with caplog.at_level("ERROR"):
+        respuesta = navegador_tolerante.get("/api/health")
+
+    assert respuesta.status_code == 500
+    assert respuesta.json() == {"error": "Error interno del servidor"}
+    assert "fallo simulado" not in respuesta.text  # no se filtran detalles internos
+    assert "Error inesperado en GET /api/health" in caplog.text
+
+
+def test_error_inesperado_en_pagina_html_muestra_plantilla(navegador_tolerante, monkeypatch):
+    from inventario.web import plantillas
+
+    original = plantillas.templates.TemplateResponse
+
+    def plantilla_que_falla(request, nombre, *args, **kwargs):
+        if nombre == "inicio.html":
+            raise RuntimeError("fallo simulado")
+        return original(request, nombre, *args, **kwargs)
+
+    monkeypatch.setattr(plantillas.templates, "TemplateResponse", plantilla_que_falla)
+
+    respuesta = navegador_tolerante.get("/")
+
+    assert respuesta.status_code == 500
+    assert "Algo salió mal" in respuesta.text
