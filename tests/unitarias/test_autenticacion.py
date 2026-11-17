@@ -37,7 +37,9 @@ def test_iniciar_sesion_correcto_devuelve_sesion(cliente_auth):
     )
 
 
-@pytest.mark.parametrize("correo, contrasena", [("", "secreta"), ("ana@agro.com", ""), ("   ", "x")])
+@pytest.mark.parametrize(
+    "correo, contrasena", [("", "secreta"), ("ana@agro.com", ""), ("   ", "x")]
+)
 def test_iniciar_sesion_exige_correo_y_contrasena(cliente_auth, correo, contrasena):
     with pytest.raises(AutenticacionError, match="Escribe tu correo"):
         autenticacion.iniciar_sesion(correo, contrasena)
@@ -46,7 +48,9 @@ def test_iniciar_sesion_exige_correo_y_contrasena(cliente_auth, correo, contrase
 
 
 def test_credenciales_invalidas_dan_mensaje_generico(cliente_auth):
-    cliente_auth.sign_in_with_password.side_effect = AuthApiError("Invalid login credentials", 400, None)
+    cliente_auth.sign_in_with_password.side_effect = AuthApiError(
+        "Invalid login credentials", 400, None
+    )
 
     with pytest.raises(AutenticacionError, match="Correo o contraseña incorrectos"):
         autenticacion.iniciar_sesion("ana@agro.com", "mala")
@@ -75,3 +79,12 @@ def test_correo_del_token_invalido_es_none(cliente_auth):
     cliente_auth.get_user.side_effect = AuthApiError("invalid JWT", 401, None)
 
     assert autenticacion.correo_del_token("alterado") is None
+
+
+def test_correo_del_token_con_servicio_caido_es_none_y_queda_en_el_log(cliente_auth, caplog):
+    cliente_auth.get_user.side_effect = ConnectionError("sin internet")
+
+    with caplog.at_level("ERROR"):
+        assert autenticacion.correo_del_token("jwt") is None
+
+    assert "No se pudo validar el token" in caplog.text

@@ -71,7 +71,9 @@ def test_login_con_sesion_activa_redirige_al_portal(navegador):
 
 def test_login_correcto_crea_cookie_segura_y_redirige(navegador, monkeypatch):
     monkeypatch.setattr(
-        autenticacion, "iniciar_sesion", lambda correo, contrasena: Sesion(TOKEN_VALIDO, CORREO, 3600)
+        autenticacion,
+        "iniciar_sesion",
+        lambda correo, contrasena: Sesion(TOKEN_VALIDO, CORREO, 3600),
     )
 
     respuesta = navegador.post("/login", data={"correo": CORREO, "contrasena": "secreta"})

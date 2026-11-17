@@ -77,9 +77,10 @@ pip install -e ".[dev]"
 copy env.example .env      # completar SUPABASE_URL y SUPABASE_KEY (clave secreta)
 ```
 
-Base de datos: en Supabase > SQL Editor ejecutar `supabase/instalacion_completa.sql`
-y luego `supabase/verificacion_etapa2.sql`. En una base existente, ejecutar solo las migraciones nuevas
-de `supabase/migraciones/`.
+Base de datos: en Supabase > SQL Editor ejecutar **en orden** los archivos de
+`supabase/migraciones/` (`001`, `002`, ...) y luego `supabase/verificacion_etapa2.sql`.
+En una base existente, ejecutar solo las migraciones nuevas. Las migraciones son la única
+fuente de verdad del esquema.
 
 Exportar el esquema real a `docs/db-export.json`:
 
@@ -109,6 +110,20 @@ uvicorn app:app --reload
 
 Abre http://127.0.0.1:8000. El healthcheck está en http://127.0.0.1:8000/api/health.
 
+## Dependencias bloqueadas
+
+`pyproject.toml` declara los rangos permitidos. `requirements.txt` (producción, lo usa Vercel) y
+`requirements-dev.txt` (desarrollo y CI) fijan la **versión exacta y el hash SHA-256** de cada paquete,
+para que cada instalación sea reproducible y ningún paquete alterado se instale.
+
+Después de cambiar dependencias en `pyproject.toml`, regenerar ambos archivos:
+
+```powershell
+pip install uv
+uv pip compile pyproject.toml --universal --generate-hashes --python-version 3.11 --no-header -o requirements.txt
+uv pip compile pyproject.toml --extra dev --universal --generate-hashes --python-version 3.11 --no-header -o requirements-dev.txt
+```
+
 ## Pruebas
 
 ```powershell
@@ -118,6 +133,25 @@ pytest -m integracion        # solo contra Supabase
 ```
 
 Las pruebas de integración se omiten automáticamente si no existe el archivo `.env`.
+
+Cobertura (genera `coverage/lcov.info`, el reporte que se versiona en el repositorio):
+
+```powershell
+pytest --cov --cov-report=term --cov-report=lcov:coverage/lcov.info
+```
+
+Revisión de estilo y errores comunes: `ruff check .`
+
+## Calidad (CI)
+
+En cada Pull Request y en cada push a `main`, GitHub Actions:
+1. Instala solo paquetes precompilados y verificados por hash
+   (`pip install --only-binary :all: --require-hashes -r requirements-dev.txt`).
+2. Ejecuta `ruff check .`.
+3. Ejecuta `pytest` con cobertura.
+4. Envía el análisis y la cobertura a [SonarCloud](https://sonarcloud.io/project/overview?id=Isosa9_Agro-Inventario).
+
+La rama `main` está protegida: no se puede hacer merge si el CI falla.
 
 ## Estructura
 

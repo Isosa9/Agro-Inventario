@@ -3,9 +3,9 @@
 import logging
 from dataclasses import dataclass
 
-from supabase import AuthApiError, Client, create_client
+from supabase import AuthApiError, Client
 
-from inventario.config import cargar_configuracion
+from inventario.db.cliente import crear_cliente
 from inventario.errores import AutenticacionError
 
 logger = logging.getLogger(__name__)
@@ -26,8 +26,7 @@ def _nuevo_cliente() -> Client:
     Iniciar sesión cambia el estado interno del cliente de Supabase. Si usáramos
     el cliente compartido, sus consultas dejarían de usar la clave del servidor.
     """
-    config = cargar_configuracion()
-    return create_client(config.supabase_url, config.supabase_key)
+    return crear_cliente()
 
 
 def iniciar_sesion(correo: str, contrasena: str) -> Sesion:
@@ -61,8 +60,12 @@ def correo_del_token(token: str | None) -> str | None:
         return None
     try:
         respuesta = _nuevo_cliente().auth.get_user(token)
+    except AuthApiError:
+        return None  # token vencido o alterado: es normal, no se registra
     except Exception:
-        return None  # token vencido, alterado o servicio caído: tratar como sin sesión
+        # servicio caído o error inesperado: se trata como sin sesión, pero queda en el log
+        logger.exception("No se pudo validar el token con Supabase Auth")
+        return None
     if respuesta is None or respuesta.user is None:
         return None
     return respuesta.user.email

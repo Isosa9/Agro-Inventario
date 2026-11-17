@@ -1,7 +1,8 @@
 """Aplicación web: arma las rutas, el healthcheck y el manejo de errores."""
 
+import logging
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -12,6 +13,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from inventario import __version__
 from inventario.web import portal, salud, sesion
 from inventario.web.plantillas import templates
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="AgroInventario", version=__version__, docs_url=None, redoc_url=None)
 app.include_router(sesion.router)
@@ -32,7 +35,7 @@ def healthcheck():
             "estado": "ok" if disponible else "degradado",
             "base_de_datos": "ok" if disponible else "sin conexión",
             "version": __version__,
-            "hora_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "hora_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         },
     )
 
@@ -49,6 +52,15 @@ def pagina_de_error(request: Request, error: StarletteHTTPException):
             return JSONResponse({"error": "Recurso no encontrado"}, status_code=404)
         return templates.TemplateResponse(request, "404.html", status_code=404)
     return JSONResponse({"error": error.detail}, status_code=error.status_code)
+
+
+@app.exception_handler(Exception)
+def error_inesperado(request: Request, error: Exception):
+    """Error no previsto: se registra completo en el log y el usuario ve una página clara."""
+    logger.exception("Error inesperado en %s %s", request.method, request.url.path)
+    if request.url.path.startswith("/api/"):
+        return JSONResponse({"error": "Error interno del servidor"}, status_code=500)
+    return templates.TemplateResponse(request, "error.html", status_code=500)
 
 
 CARPETA_PUBLIC = Path(__file__).resolve().parents[3] / "public"

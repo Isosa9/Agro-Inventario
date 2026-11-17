@@ -33,8 +33,13 @@ def test_archivo_publico_existe(archivo):
     assert (PUBLIC / archivo).is_file()
 
 
+CAMPOS_MANIFEST = (
+    "name", "short_name", "start_url", "display", "theme_color", "background_color", "icons",
+)
+
+
 def test_manifest_tiene_campos_requeridos(manifest):
-    for campo in ("name", "short_name", "start_url", "display", "theme_color", "background_color", "icons"):
+    for campo in CAMPOS_MANIFEST:
         assert manifest[campo]
 
 
