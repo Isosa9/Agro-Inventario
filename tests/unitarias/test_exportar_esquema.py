@@ -9,7 +9,11 @@ from inventario.herramientas import exportar_esquema
 ESQUEMA = {
     "motor": "postgres",
     "tablas": [
-        {"nombre": "producto", "filas": 58, "relaciones": [{"columna": "categoria_id", "referencia": "categoria.id"}]},
+        {
+            "nombre": "producto",
+            "filas": 58,
+            "relaciones": [{"columna": "categoria_id", "referencia": "categoria.id"}],
+        },
         {"nombre": "categoria", "filas": 10, "relaciones": []},
     ],
 }

@@ -10,7 +10,9 @@ import pytest
 
 RUTA = Path(__file__).resolve().parents[2] / "docs" / "db-export.json"
 
-pytestmark = pytest.mark.skipif(not RUTA.exists(), reason="docs/db-export.json aún no se ha generado")
+pytestmark = pytest.mark.skipif(
+    not RUTA.exists(), reason="docs/db-export.json aún no se ha generado"
+)
 
 
 @pytest.fixture(scope="module")
