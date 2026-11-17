@@ -181,7 +181,8 @@ Decisiones (detalle en [ADR-001](adr/ADR-001-persistencia.md)):
 - `exportar_esquema()` lee el catálogo de PostgreSQL y genera el esquema real en JSON;
   `python -m inventario.herramientas.exportar_esquema` lo guarda en [`docs/db-export.json`](db-export.json).
 
-Scripts en `supabase/migraciones/` (ejecutar en orden) o `supabase/instalacion_completa.sql`.
+Scripts en `supabase/migraciones/`, ejecutados en orden. Son la única fuente de verdad del esquema
+(antes existía un script combinado que duplicaba las migraciones; se eliminó por DRY).
 
 ## 4. Capas de la aplicación
 
@@ -214,7 +215,9 @@ de Vercel; `vercel.json` define los headers de seguridad. Cada merge a `main` se
 
 - `tests/unitarias/`: sin internet, con mocks. `pytest -m "not integracion"`
 - `tests/integracion/`: contra Supabase real; se omiten si no hay `.env`.
-- GitHub Actions ejecuta todas las pruebas en cada Pull Request.
+- GitHub Actions ejecuta en cada Pull Request: instalación bloqueada por hash, `ruff`, `pytest` con cobertura
+  y análisis de SonarCloud. La rama `main` está protegida y exige que el CI pase.
+- Cobertura versionada en `coverage/lcov.info`.
 
 ## 6. Git
 
@@ -232,6 +235,7 @@ Commits con Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`
 | 5. Login y portal privado | ✅ | Supabase Auth, cookie HttpOnly/Secure, portal protegido; 20/20 en la plataforma |
 | Documentación C4 + ADRs | ✅ | Diagramas de contexto, contenedores y componentes; ADR-001 y ADR-002 |
 | Modelo de datos exportado | ✅ | Políticas RLS explícitas, `exportar_esquema()`, `docs/db-export.json` |
+| Calidad de código | ✅ | Dependencias bloqueadas con hash, ruff, cobertura, SonarCloud, página 500, DRY del cliente |
 | 6. Modelos y validadores | ⏳ | |
 | 7. Productos | ⏳ | |
 | 8. Ventas | ⏳ | |
