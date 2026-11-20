@@ -3,7 +3,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Form, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 
 from inventario.errores import AutenticacionError
 from inventario.web import autenticacion
@@ -11,7 +11,29 @@ from inventario.web.plantillas import templates
 
 COOKIE_SESION = "sesion"
 
+# Atributos de seguridad de la cookie de sesión, definidos una sola vez (DRY).
+# Deben ser idénticos al crearla y al borrarla; si no, el navegador no la borra.
+ATRIBUTOS_COOKIE_SESION = {
+    "httponly": True,  # JavaScript no puede leerla
+    "secure": True,  # solo viaja por HTTPS
+    "samesite": "lax",  # no se envía en formularios de otros sitios
+}
+
 router = APIRouter()
+
+
+def guardar_cookie_de_sesion(respuesta: Response, sesion: autenticacion.Sesion) -> None:
+    """Guarda el token en la cookie de sesión, con la misma duración que el token."""
+    respuesta.set_cookie(
+        COOKIE_SESION,
+        sesion.token,
+        max_age=sesion.expira_en_segundos,
+        **ATRIBUTOS_COOKIE_SESION,
+    )
+
+
+def borrar_cookie_de_sesion(respuesta: Response) -> None:
+    respuesta.delete_cookie(COOKIE_SESION, **ATRIBUTOS_COOKIE_SESION)
 
 
 class SesionRequerida(Exception):
@@ -54,19 +76,12 @@ def procesar_login(
         )
 
     respuesta = RedirectResponse("/portal", status_code=303)
-    respuesta.set_cookie(
-        COOKIE_SESION,
-        sesion.token,
-        max_age=sesion.expira_en_segundos,
-        httponly=True,   # JavaScript no puede leerla
-        secure=True,     # solo viaja por HTTPS
-        samesite="lax",  # no se envía en formularios de otros sitios
-    )
+    guardar_cookie_de_sesion(respuesta, sesion)
     return respuesta
 
 
 @router.post("/logout")
 def cerrar_sesion():
     respuesta = RedirectResponse("/", status_code=303)
-    respuesta.delete_cookie(COOKIE_SESION, httponly=True, secure=True, samesite="lax")
+    borrar_cookie_de_sesion(respuesta)
     return respuesta
