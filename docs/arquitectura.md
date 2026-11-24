@@ -99,7 +99,7 @@ flowchart TB
         autent["web/autenticacion.py<br/>Supabase Auth"]
         plantillas["web/plantillas.py<br/>Jinja2"]
         servicios["servicios/<br/>Reglas de negocio (Etapas 7-9)"]
-        validadores["validadores/ y modelos/<br/>(Etapa 6)"]
+        validadores["validadores/ y modelos/<br/>Reglas y entidades del dominio"]
         repos["repositorios/<br/>ProductoRepositorio"]
         cliente["db/cliente.py<br/>Conexión única"]
         config["config.py<br/>Lee .env"]
@@ -194,8 +194,8 @@ Scripts en `supabase/migraciones/`, ejecutados en orden. Son la única fuente de
 | `web/portal.py` | Portal privado; su repositorio depende de la sesión | ✅ |
 | `web/plantillas.py` | Configuración única de Jinja2 | ✅ |
 | `repositorios/` | Leer/escribir en Supabase, sin lógica de negocio | 🔄 |
-| `modelos/` | Representar datos del dominio | ⏳ Etapa 6 |
-| `validadores/` | Verificar datos de entrada | ⏳ Etapa 6 |
+| `modelos/` | Representar datos del dominio (inmutables, válidos por construcción) | ✅ |
+| `validadores/` | Reglas del negocio: precio, cantidad, nombre, ids, venta sin repetidos | ✅ |
 | `servicios/` | Reglas de negocio; reciben repositorios por parámetro (mockeables) | ⏳ Etapas 7-9 |
 | `db/cliente.py` | Crear la conexión una sola vez | ✅ |
 | `config.py` | Leer `.env` | ✅ |
@@ -236,7 +236,7 @@ Commits con Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`
 | Documentación C4 + ADRs | ✅ | Diagramas de contexto, contenedores y componentes; ADR-001 y ADR-002 |
 | Modelo de datos exportado | ✅ | Políticas RLS explícitas, `exportar_esquema()`, `docs/db-export.json` |
 | Calidad de código | ✅ | Dependencias bloqueadas con hash, ruff, cobertura, SonarCloud, página 500, DRY del cliente |
-| 6. Modelos y validadores | ⏳ | |
+| 6. Modelos y validadores | ✅ | `Producto`, `ItemVenta`, `DetalleVenta`, `Venta`; reglas con `Decimal`; 100 % de cobertura |
 | 7. Productos | ⏳ | |
 | 8. Ventas | ⏳ | |
 | 9. Reportes | ⏳ | |

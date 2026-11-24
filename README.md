@@ -43,8 +43,10 @@ Web (FastAPI) → Servicios → (Validadores, Repositorios) → Cliente Supabase
 - **Sesión:** login con Supabase Auth; la sesión viaja en una cookie `HttpOnly` y `Secure`.
   `/portal` exige sesión válida en el servidor: sin ella redirige a `/login` sin consultar datos.
 
-- **Modelos:** representan los datos del dominio (`Producto`, `Venta`, `DetalleVenta`).
-- **Validadores:** reglas de entrada (precio > 0, cantidad >= 0, venta no vacía).
+- **Modelos** (`modelos/`): `Producto`, `ItemVenta`, `DetalleVenta` y `Venta`. Inmutables y válidos
+  por construcción: no se pueden crear con datos inválidos.
+- **Validadores** (`validadores/reglas.py`): precio > 0 con 2 decimales, cantidad >= 0 con 3 decimales,
+  nombre obligatorio, venta sin productos repetidos. Usan `Decimal` (nunca `float`) y aceptan coma decimal.
 - **Repositorios:** único lugar que lee y escribe en Supabase.
 - **Servicios:** lógica de negocio; reciben los repositorios por parámetro para poder probarse con mocks.
 
@@ -181,7 +183,7 @@ secretos fuera del repositorio (`.env` en `.gitignore`).
 | 3. Entorno, conexión y pruebas | ✅ |
 | 4. Sitio web publicado en Vercel (PWA, SEO, healthcheck) | ✅ |
 | 5. Login y portal privado | ✅ |
-| 6. Modelos y validadores | ⏳ |
+| 6. Modelos y validadores | ✅ |
 | 7. Productos | ⏳ |
 | 8. Ventas | ⏳ |
 | 9. Reportes | ⏳ |
