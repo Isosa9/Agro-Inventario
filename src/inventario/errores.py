@@ -15,3 +15,7 @@ class ConfiguracionError(InventarioError):
 
 class AutenticacionError(InventarioError):
     """No se pudo iniciar sesión (credenciales inválidas o servicio no disponible)."""
+
+
+class ValidacionError(InventarioError):
+    """Un dato no cumple las reglas del negocio (precio, cantidad, nombre...)."""
