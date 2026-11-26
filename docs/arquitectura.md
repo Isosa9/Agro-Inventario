@@ -96,19 +96,19 @@ flowchart LR
     navegador([Navegador]) -->|HTTPS| web
 
     subgraph borde["🧱 Adaptadores (borde)"]
-        web["web/<br/>FastAPI: portal, login, health"]
-        supa["adaptadores/<br/>RepositorioProductosSupabase"]
-        memoria["adaptadores/<br/>RepositorioProductosEnMemoria"]
+        web["web/<br/>FastAPI: portal, productos,<br/>login, health"]
+        supa["adaptadores/<br/>Repositorios Supabase"]
+        memoria["adaptadores/<br/>Repositorios en memoria"]
         db["db/cliente.py"]
     end
 
     subgraph medio["⚙️ Casos de uso"]
-        resumen["casos_de_uso/<br/>obtener_resumen_inventario"]
+        resumen["casos_de_uso/<br/>resumen_inventario · productos"]
     end
 
     subgraph centro["🎯 Dominio"]
-        puerto["puertos.py<br/>RepositorioProductos"]
-        entidades["producto.py · venta.py<br/>reglas.py"]
+        puerto["puertos.py<br/>RepositorioProductos<br/>RepositorioCatalogos"]
+        entidades["producto.py · venta.py<br/>catalogo.py · reglas.py"]
     end
 
     web --> resumen
@@ -190,7 +190,9 @@ Scripts en `supabase/migraciones/`, ejecutados en orden. Son la única fuente de
 | `web/app.py` | Arma la aplicación: rutas, healthcheck, errores | ✅ |
 | `web/sesion.py` | Login, logout y dependencia `correo_requerido` | ✅ |
 | `web/autenticacion.py` | Habla con Supabase Auth (iniciar sesión, validar token) | ✅ |
-| `web/portal.py` | Portal privado; llama al caso de uso y elige el adaptador real | ✅ |
+| `web/portal.py` | Resumen del inventario | ✅ |
+| `web/productos.py` | Lista, búsqueda, agotados, registrar y editar productos | ✅ |
+| `web/dependencias.py` | Elige los adaptadores reales; toda página privada exige sesión | ✅ |
 | `web/plantillas.py` | Configuración única de Jinja2 | ✅ |
 | `adaptadores/` | Implementan los puertos: Supabase (producción) y memoria (pruebas) | ✅ |
 | `dominio/` | Entidades (`Producto`, `Venta`…), reglas y puertos; sin frameworks | ✅ |
@@ -236,6 +238,6 @@ Commits con Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`
 | Calidad de código | ✅ | Dependencias bloqueadas con hash, ruff, cobertura, SonarCloud, página 500, DRY del cliente |
 | 6. Modelos y validadores | ✅ | `Producto`, `ItemVenta`, `DetalleVenta`, `Venta`; reglas con `Decimal`; 100 % de cobertura |
 | Arquitectura de cebolla | ✅ | `dominio/`, `casos_de_uso/`, `adaptadores/`, puerto `RepositorioProductos`, repositorio en memoria, prueba de arquitectura; ADR-003 |
-| 7. Productos | ⏳ | |
+| 7. Productos | ✅ | RF-01 a RF-04 en el portal; búsqueda sin mayúsculas ni tildes; nombre único; 98 % de cobertura |
 | 8. Ventas | ⏳ | |
 | 9. Reportes | ⏳ | |
