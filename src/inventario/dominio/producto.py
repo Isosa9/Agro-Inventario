@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from decimal import Decimal
 
-from inventario.validadores.reglas import (
+from inventario.dominio.reglas import (
     validar_existencia,
     validar_id,
     validar_nombre,

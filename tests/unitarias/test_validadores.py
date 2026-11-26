@@ -4,8 +4,8 @@ from decimal import Decimal
 
 import pytest
 
+from inventario.dominio import reglas
 from inventario.errores import ValidacionError
-from inventario.validadores import reglas
 
 # ---------- Conversión a Decimal ----------
 
