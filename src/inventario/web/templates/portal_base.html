@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block meta_extra %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+
+{% block navegacion %}
+<span class="usuario">{{ correo }}</span>
+<form method="post" action="/logout">
+  <button class="boton boton-claro" type="submit">Cerrar sesión</button>
+</form>
+{% endblock %}
+
+{% block contenido %}
+<nav class="menu-portal" aria-label="Secciones del portal">
+  {% set ruta = request.url.path %}
+  <a href="/portal" {% if ruta == "/portal" %}aria-current="page"{% endif %}>Resumen</a>
+  <a href="/portal/productos" {% if ruta.startswith("/portal/productos") %}aria-current="page"{% endif %}>Productos</a>
+</nav>
+{% block portal %}{% endblock %}
+{% endblock %}

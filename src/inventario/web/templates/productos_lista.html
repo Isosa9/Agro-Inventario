@@ -1,0 +1,59 @@
+{% extends "portal_base.html" %}
+
+{% block titulo %}Productos · AgroInventario{% endblock %}
+
+{% block portal %}
+<div class="encabezado-seccion">
+  <h1>{% if agotados %}Productos agotados{% else %}Productos{% endif %}</h1>
+  <a class="boton" href="/portal/productos/nuevo">+ Nuevo producto</a>
+</div>
+
+{% if guardado %}
+<p class="aviso-exito" role="status">Se guardó «{{ guardado }}».</p>
+{% endif %}
+
+<form class="buscador" method="get" action="/portal/productos" role="search">
+  <label for="q" class="solo-lectores">Buscar producto</label>
+  <input id="q" name="q" type="search" value="{{ q }}" placeholder="Buscar por nombre…">
+  <label class="casilla">
+    <input type="checkbox" name="agotados" value="true" {% if agotados %}checked{% endif %}>
+    Solo agotados
+  </label>
+  <button class="boton" type="submit">Buscar</button>
+  {% if q or agotados %}<a href="/portal/productos">Limpiar</a>{% endif %}
+</form>
+
+<p class="conteo">{{ productos|length }} producto{{ "" if productos|length == 1 else "s" }}</p>
+
+{% if productos %}
+<table class="tabla-productos">
+  <thead>
+    <tr>
+      <th scope="col">Producto</th>
+      <th scope="col">Categoría</th>
+      <th scope="col" class="numero">Precio</th>
+      <th scope="col" class="numero">Existencia</th>
+      <th scope="col"><span class="solo-lectores">Acciones</span></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for producto in productos %}
+    <tr {% if producto.esta_agotado %}class="fila-agotada"{% endif %}>
+      <td data-etiqueta="Producto">
+        {{ producto.nombre }}
+        {% if producto.esta_agotado %}<span class="etiqueta-agotado">Agotado</span>{% endif %}
+      </td>
+      <td data-etiqueta="Categoría">{{ categorias.get(producto.categoria_id, "—") }}</td>
+      <td data-etiqueta="Precio" class="numero">{{ producto.precio|lempiras }}</td>
+      <td data-etiqueta="Existencia" class="numero">
+        {{ producto.cantidad|cantidad }} {{ unidades.get(producto.unidad_medida_id, "") }}
+      </td>
+      <td><a href="/portal/productos/{{ producto.id }}/editar">Editar<span class="solo-lectores"> {{ producto.nombre }}</span></a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="vacio">No se encontraron productos{% if q %} para «{{ q }}»{% endif %}.</p>
+{% endif %}
+{% endblock %}

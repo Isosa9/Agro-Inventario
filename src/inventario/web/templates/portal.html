@@ -1,16 +1,8 @@
-{% extends "base.html" %}
+{% extends "portal_base.html" %}
 
 {% block titulo %}Portal · AgroInventario{% endblock %}
-{% block meta_extra %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 
-{% block navegacion %}
-<span class="usuario">{{ correo }}</span>
-<form method="post" action="/logout">
-  <button class="boton boton-claro" type="submit">Cerrar sesión</button>
-</form>
-{% endblock %}
-
-{% block contenido %}
+{% block portal %}
 <section class="portada">
   <h1>Hola de nuevo</h1>
   <p class="bajada">Este es el resumen de tu inventario.</p>
@@ -20,14 +12,16 @@
   <article class="tarjeta indicador">
     <h2>Productos registrados</h2>
     <p class="cifra">{{ total_productos }}</p>
+    <p><a href="/portal/productos">Ver productos</a></p>
   </article>
   <article class="tarjeta indicador {% if productos_agotados %}alerta-borde{% endif %}">
     <h2>Productos agotados</h2>
     <p class="cifra">{{ productos_agotados }}</p>
+    {% if productos_agotados %}<p><a href="/portal/productos?agotados=true">Ver agotados</a></p>{% endif %}
   </article>
   <article class="tarjeta">
     <h2>Próximamente</h2>
-    <p>Desde aquí podrás consultar y editar productos, registrar ventas y ver los reportes diarios.</p>
+    <p>Registrar ventas con descuento automático del inventario y ver los reportes diarios.</p>
   </article>
 </section>
 {% endblock %}

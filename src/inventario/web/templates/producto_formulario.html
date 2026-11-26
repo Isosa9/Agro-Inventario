@@ -1,0 +1,54 @@
+{% extends "portal_base.html" %}
+
+{% block titulo %}{{ titulo }} · AgroInventario{% endblock %}
+
+{% block portal %}
+<section class="panel-formulario">
+  <h1>{{ titulo }}</h1>
+
+  {% if error %}
+  <p class="alerta" role="alert">{{ error }}</p>
+  {% endif %}
+
+  <form class="formulario" method="post" action="{{ accion }}">
+    <label for="nombre">Nombre</label>
+    <input id="nombre" name="nombre" value="{{ valores.nombre or '' }}" maxlength="120" required>
+
+    <div class="fila-campos">
+      <div>
+        <label for="precio">Precio (L)</label>
+        <input id="precio" name="precio" inputmode="decimal" value="{{ valores.precio or '' }}"
+               placeholder="11.50" required>
+      </div>
+      <div>
+        <label for="cantidad">Existencia</label>
+        <input id="cantidad" name="cantidad" inputmode="decimal" value="{{ valores.cantidad or '' }}"
+               placeholder="2.5" required>
+      </div>
+    </div>
+
+    <label for="categoria_id">Categoría</label>
+    <select id="categoria_id" name="categoria_id" required>
+      <option value="">Elige una categoría</option>
+      {% for categoria in categorias %}
+      <option value="{{ categoria.id }}" {% if valores.categoria_id == categoria.id|string %}selected{% endif %}>{{ categoria.etiqueta }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="unidad_medida_id">Unidad de medida</label>
+    <select id="unidad_medida_id" name="unidad_medida_id" required>
+      <option value="">Elige una unidad</option>
+      {% for unidad in unidades %}
+      <option value="{{ unidad.id }}" {% if valores.unidad_medida_id == unidad.id|string %}selected{% endif %}>{{ unidad.etiqueta }}</option>
+      {% endfor %}
+    </select>
+
+    <p class="ayuda">Puedes usar punto o coma para los decimales (2.5 o 2,5).</p>
+
+    <div class="acciones">
+      <button class="boton" type="submit">Guardar</button>
+      <a href="/portal/productos">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
