@@ -40,21 +40,21 @@ class SesionRequerida(Exception):
     """Se lanza cuando una página privada se pide sin sesión válida."""
 
 
-def correo_actual(request: Request) -> str | None:
-    return autenticacion.correo_del_token(request.cookies.get(COOKIE_SESION))
+def usuario_actual(request: Request) -> autenticacion.UsuarioSesion | None:
+    return autenticacion.usuario_del_token(request.cookies.get(COOKIE_SESION))
 
 
-def correo_requerido(request: Request) -> str:
+def usuario_requerido(request: Request) -> autenticacion.UsuarioSesion:
     """Dependencia para páginas privadas: corta la petición si no hay sesión."""
-    correo = correo_actual(request)
-    if correo is None:
+    usuario = usuario_actual(request)
+    if usuario is None:
         raise SesionRequerida()
-    return correo
+    return usuario
 
 
 @router.get("/login", response_class=HTMLResponse)
 def formulario_login(request: Request):
-    if correo_actual(request):
+    if usuario_actual(request):
         return RedirectResponse("/portal", status_code=303)
     return templates.TemplateResponse(request, "login.html")
 

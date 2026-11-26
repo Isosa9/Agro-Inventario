@@ -1,6 +1,7 @@
 """Única responsabilidad: iniciar sesión y validar sesiones con Supabase Auth."""
 
 import logging
+import re
 from dataclasses import dataclass
 
 from supabase import AuthApiError, Client
@@ -11,6 +12,24 @@ from inventario.errores import AutenticacionError
 logger = logging.getLogger(__name__)
 
 MENSAJE_CREDENCIALES = "Correo o contraseña incorrectos"
+
+
+@dataclass(frozen=True)
+class UsuarioSesion:
+    """Quién inició sesión: su correo y el nombre con el que se le saluda."""
+
+    correo: str
+    nombre: str
+
+
+def nombre_desde_correo(correo: str) -> str:
+    """Nombre aproximado a partir del correo: "maria.lopez@x.com" -> "Maria".
+
+    Toma la parte antes de @, se queda con la primera palabra y quita los números.
+    """
+    usuario = correo.split("@", 1)[0]
+    primera_palabra = re.split(r"[._+\-]", usuario, maxsplit=1)[0]
+    return re.sub(r"\d+", "", primera_palabra).capitalize()
 
 
 @dataclass(frozen=True)
@@ -54,8 +73,12 @@ def iniciar_sesion(correo: str, contrasena: str) -> Sesion:
     )
 
 
-def correo_del_token(token: str | None) -> str | None:
-    """Devuelve el correo del usuario si el token es válido; si no, None."""
+def usuario_del_token(token: str | None) -> UsuarioSesion | None:
+    """Devuelve quién inició sesión si el token es válido; si no, None.
+
+    El nombre sale del campo "nombre" de los metadatos del usuario en Supabase Auth;
+    si no existe, se deduce del correo.
+    """
     if not token:
         return None
     try:
@@ -66,6 +89,9 @@ def correo_del_token(token: str | None) -> str | None:
         # servicio caído o error inesperado: se trata como sin sesión, pero queda en el log
         logger.exception("No se pudo validar el token con Supabase Auth")
         return None
-    if respuesta is None or respuesta.user is None:
+    if respuesta is None or respuesta.user is None or not respuesta.user.email:
         return None
-    return respuesta.user.email
+    correo = respuesta.user.email
+    metadatos = respuesta.user.user_metadata or {}
+    nombre = str(metadatos.get("nombre") or "").strip() or nombre_desde_correo(correo)
+    return UsuarioSesion(correo=correo, nombre=nombre)

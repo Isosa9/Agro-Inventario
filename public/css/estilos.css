@@ -194,26 +194,15 @@ a { color: var(--verde); }
 
 .pie p { margin: 0.2rem 0; }
 
-/* Portal: menú, productos y formularios */
-.menu-portal {
-  display: flex;
-  gap: 0.25rem;
-  border-bottom: 1px solid var(--borde);
-  margin-bottom: 1.5rem;
-}
-
-.menu-portal a {
-  padding: 0.6rem 0.9rem;
+/* Portal: productos y formularios */
+.volver {
+  display: inline-block;
+  margin-bottom: 0.75rem;
   text-decoration: none;
-  color: var(--texto-suave);
-  border-bottom: 3px solid transparent;
+  font-weight: 600;
 }
 
-.menu-portal a[aria-current="page"] {
-  color: var(--verde-oscuro);
-  font-weight: 600;
-  border-bottom-color: var(--verde);
-}
+.volver:hover, .volver:focus-visible { text-decoration: underline; }
 
 .encabezado-seccion {
   display: flex;

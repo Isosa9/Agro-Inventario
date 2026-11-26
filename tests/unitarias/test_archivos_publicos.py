@@ -73,3 +73,11 @@ def test_vercel_json_define_headers_de_seguridad():
         "Referrer-Policy",
         "Content-Security-Policy",
     } <= headers
+
+
+def test_service_worker_actualiza_los_archivos_estaticos():
+    # stale-while-revalidate guarda la versión nueva (con cache-first los estilos se congelaban)
+    sw = (PUBLIC / "sw.js").read_text(encoding="utf-8")
+
+    assert "cache.put(request" in sw
+    assert 'const VERSION = "agroinventario-v1"' in sw

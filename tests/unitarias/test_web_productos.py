@@ -11,6 +11,7 @@ from inventario.dominio.catalogo import ElementoCatalogo
 from inventario.dominio.producto import Producto
 from inventario.web import autenticacion
 from inventario.web.app import app
+from inventario.web.autenticacion import UsuarioSesion
 from inventario.web.dependencias import repositorio_catalogos, repositorio_productos
 from inventario.web.plantillas import formato_cantidad, formato_lempiras
 from inventario.web.sesion import COOKIE_SESION
@@ -38,7 +39,9 @@ def navegador(productos, monkeypatch):
     app.dependency_overrides[repositorio_productos] = lambda: productos
     app.dependency_overrides[repositorio_catalogos] = lambda: catalogos
     monkeypatch.setattr(
-        autenticacion, "correo_del_token", lambda t: "duena@agro.com" if t == TOKEN else None
+        autenticacion,
+        "usuario_del_token",
+        lambda t: UsuarioSesion("duena@agro.com", "Duena") if t == TOKEN else None,
     )
     cliente = TestClient(app, base_url="https://testserver", follow_redirects=False)
     cliente.cookies.set(COOKIE_SESION, TOKEN)
@@ -94,6 +97,7 @@ def test_lista_muestra_productos_con_formato(navegador):
     assert "Vitaminas y minerales" in respuesta.text
     assert "3 productos" in respuesta.text
     assert respuesta.headers["cache-control"] == "no-store"
+    assert 'href="/portal">← Volver al inicio' in respuesta.text
 
 
 def test_lista_marca_agotados(navegador):

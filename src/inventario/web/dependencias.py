@@ -2,7 +2,7 @@
 
 Aquí se eligen los adaptadores reales (Supabase). Las pruebas los reemplazan
 con los adaptadores en memoria mediante app.dependency_overrides.
-Todas dependen de correo_requerido: sin sesión, ni siquiera se conectan a la base de datos.
+Todas dependen de usuario_requerido: sin sesión, ni siquiera se conectan a la base de datos.
 """
 
 from typing import Annotated
@@ -14,17 +14,18 @@ from inventario.adaptadores.repositorio_catalogos import RepositorioCatalogosSup
 from inventario.adaptadores.repositorio_productos_supabase import RepositorioProductosSupabase
 from inventario.db.cliente import obtener_cliente
 from inventario.dominio.puertos import RepositorioCatalogos, RepositorioProductos
+from inventario.web.autenticacion import UsuarioSesion
 from inventario.web.plantillas import templates
-from inventario.web.sesion import correo_requerido
+from inventario.web.sesion import usuario_requerido
 
-CorreoSesion = Annotated[str, Depends(correo_requerido)]
+UsuarioActual = Annotated[UsuarioSesion, Depends(usuario_requerido)]
 
 
-def repositorio_productos(_: CorreoSesion) -> RepositorioProductos:
+def repositorio_productos(_: UsuarioActual) -> RepositorioProductos:
     return RepositorioProductosSupabase(obtener_cliente())
 
 
-def repositorio_catalogos(_: CorreoSesion) -> RepositorioCatalogos:
+def repositorio_catalogos(_: UsuarioActual) -> RepositorioCatalogos:
     return RepositorioCatalogosSupabase(obtener_cliente())
 
 
