@@ -52,7 +52,7 @@ src/inventario/
 | Mover `web/` y `db/` dentro de `adaptadores/` | No por ahora | Sus dependencias ya apuntan hacia adentro. Moverlos cambiaría muchos archivos y pruebas sin beneficio funcional (KISS). Están documentados como adaptadores. |
 | Puerto para la autenticación | No | Hay una sola implementación (Supabase Auth) y las pruebas ya la reemplazan con mocks. Un puerto sin un segundo uso sería abstracción especulativa (YAGNI). |
 | Puerto `RepositorioVentas` | En la Etapa 8 | Todavía no hay código que registre ventas desde Python. Se creará cuando exista el caso de uso que lo necesite. |
-| Métodos `listar`, `guardar`, `buscar` en el puerto | En la Etapa 7 | El puerto crece con los casos de uso reales, no antes. |
+| Métodos `listar`, `guardar`, `buscar` en el puerto | Agregados en la Etapa 7 | El puerto creció junto con los casos de uso de productos que los usan. |
 | Contenedor de inyección de dependencias | No | `Depends` de FastAPI ya inyecta el adaptador; agregar una librería sería complejidad sin necesidad. |
 | Separar entidades del dominio de un ORM | No aplica | El proyecto no usa ORM: Supabase devuelve diccionarios y el adaptador los traduce. |
 

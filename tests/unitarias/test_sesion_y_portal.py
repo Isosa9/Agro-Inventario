@@ -7,7 +7,7 @@ from inventario.errores import AutenticacionError
 from inventario.web import autenticacion
 from inventario.web.app import app
 from inventario.web.autenticacion import Sesion
-from inventario.web.portal import repositorio_productos
+from inventario.web.dependencias import repositorio_productos
 from inventario.web.sesion import COOKIE_SESION
 
 CORREO = "dueña@agro.com"

@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from inventario import __version__
-from inventario.web import portal, salud, sesion
+from inventario.web import portal, productos, salud, sesion
 from inventario.web.plantillas import templates
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="AgroInventario", version=__version__, docs_url=None, redoc_url=None)
 app.include_router(sesion.router)
 app.include_router(portal.router)
+app.include_router(productos.router)
 
 
 @app.get("/", response_class=HTMLResponse)

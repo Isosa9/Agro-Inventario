@@ -45,9 +45,10 @@ web (FastAPI) ──▶ casos_de_uso ──▶ dominio ◀── adaptadores (Su
   construcción; reglas del negocio en `reglas.py` (precio > 0 con 2 decimales, cantidad ≥ 0 con 3 decimales,
   `Decimal` en lugar de `float`, coma decimal aceptada); puerto `RepositorioProductos` en `puertos.py`.
   No importa frameworks ni Supabase.
-- **Casos de uso** (`casos_de_uso/`): lo que el usuario puede hacer. Reciben el repositorio por parámetro.
-- **Adaptadores** (`adaptadores/`): `RepositorioProductosSupabase` para producción y
-  `RepositorioProductosEnMemoria` para probar casos de uso sin internet.
+- **Casos de uso** (`casos_de_uso/`): lo que el usuario puede hacer (resumen del inventario; listar, buscar,
+  registrar y actualizar productos). Reciben el repositorio por parámetro.
+- **Adaptadores** (`adaptadores/`): repositorios de productos y catálogos para Supabase (producción)
+  y en memoria (pruebas sin internet).
 - **Web** (`web/`): adaptador de entrada con páginas HTML, healthcheck `/api/health` y PWA.
   Login con Supabase Auth; la sesión viaja en una cookie `HttpOnly` y `Secure`, y `/portal` exige
   sesión válida en el servidor.
@@ -100,6 +101,7 @@ python -m inventario.herramientas.exportar_esquema
 - Inicio: https://agro-inventario-one.vercel.app
 - Login: https://agro-inventario-one.vercel.app/login
 - Portal privado: https://agro-inventario-one.vercel.app/portal
+- Productos: https://agro-inventario-one.vercel.app/portal/productos
 - Healthcheck: https://agro-inventario-one.vercel.app/api/health
 
 ## Usuarios
@@ -190,6 +192,6 @@ secretos fuera del repositorio (`.env` en `.gitignore`).
 | 5. Login y portal privado | ✅ |
 | 6. Modelos y validadores | ✅ |
 | Arquitectura de cebolla (puertos y adaptadores) | ✅ |
-| 7. Productos | ⏳ |
+| 7. Productos (lista, búsqueda, agotados, registrar y editar) | ✅ |
 | 8. Ventas | ⏳ |
 | 9. Reportes | ⏳ |

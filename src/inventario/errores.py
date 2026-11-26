@@ -19,3 +19,11 @@ class AutenticacionError(InventarioError):
 
 class ValidacionError(InventarioError):
     """Un dato no cumple las reglas del negocio (precio, cantidad, nombre...)."""
+
+
+class NombreDuplicadoError(ValidacionError):
+    """Ya existe otro producto con ese nombre."""
+
+
+class ProductoNoEncontradoError(InventarioError):
+    """No existe un producto con ese identificador."""
