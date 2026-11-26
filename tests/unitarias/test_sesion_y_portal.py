@@ -15,7 +15,7 @@ TOKEN_VALIDO = "token-valido"
 
 
 class RepositorioFalso:
-    """Reemplaza a ProductoRepositorio: no toca Supabase y registra si se usó."""
+    """Espía del repositorio: no toca Supabase y registra si se consultó."""
 
     def __init__(self):
         self.consultado = False
