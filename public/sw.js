@@ -53,8 +53,8 @@ async function desdeCacheYActualizar(evento, request) {
   const cache = await caches.open(VERSION);
   const enCache = await cache.match(request);
   const desdeRed = fetch(request)
-    .then((respuesta) => {
-      if (respuesta.ok) cache.put(request, respuesta.clone());
+  .then(async (respuesta) => {
+      if (respuesta.ok) await cache.put(request, respuesta.clone());
       return respuesta;
     })
     .catch(() => enCache);
