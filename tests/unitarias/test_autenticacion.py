@@ -63,28 +63,56 @@ def test_fallo_de_conexion_da_mensaje_distinto(cliente_auth):
         autenticacion.iniciar_sesion("ana@agro.com", "secreta")
 
 
-def test_correo_del_token_valido(cliente_auth):
-    cliente_auth.get_user.return_value = SimpleNamespace(user=SimpleNamespace(email="ana@agro.com"))
+def usuario_supabase(correo, metadatos=None):
+    return SimpleNamespace(user=SimpleNamespace(email=correo, user_metadata=metadatos))
 
-    assert autenticacion.correo_del_token("jwt") == "ana@agro.com"
+
+def test_usuario_del_token_valido_deduce_el_nombre_del_correo(cliente_auth):
+    cliente_auth.get_user.return_value = usuario_supabase("ana.lopez@agro.com")
+
+    usuario = autenticacion.usuario_del_token("jwt")
+
+    assert usuario == autenticacion.UsuarioSesion("ana.lopez@agro.com", "Ana")
+
+
+def test_usuario_del_token_prefiere_el_nombre_de_los_metadatos(cliente_auth):
+    cliente_auth.get_user.return_value = usuario_supabase(
+        "mlopez85@correo.com", {"nombre": " Marta "}
+    )
+
+    assert autenticacion.usuario_del_token("jwt").nombre == "Marta"
+
+
+@pytest.mark.parametrize(
+    "correo, nombre",
+    [
+        ("maria.lopez@x.com", "Maria"),
+        ("JUAN_perez@x.com", "Juan"),
+        ("lopezmarta85@correo.com", "Lopezmarta"),
+        ("ana+trabajo@x.com", "Ana"),
+        ("12345@x.com", ""),
+    ],
+)
+def test_nombre_desde_correo(correo, nombre):
+    assert autenticacion.nombre_desde_correo(correo) == nombre
 
 
 @pytest.mark.parametrize("token", [None, ""])
-def test_correo_del_token_vacio_es_none_sin_consultar(cliente_auth, token):
-    assert autenticacion.correo_del_token(token) is None
+def test_usuario_del_token_vacio_es_none_sin_consultar(cliente_auth, token):
+    assert autenticacion.usuario_del_token(token) is None
     cliente_auth.get_user.assert_not_called()
 
 
-def test_correo_del_token_invalido_es_none(cliente_auth):
+def test_usuario_del_token_invalido_es_none(cliente_auth):
     cliente_auth.get_user.side_effect = AuthApiError("invalid JWT", 401, None)
 
-    assert autenticacion.correo_del_token("alterado") is None
+    assert autenticacion.usuario_del_token("alterado") is None
 
 
-def test_correo_del_token_con_servicio_caido_es_none_y_queda_en_el_log(cliente_auth, caplog):
+def test_usuario_del_token_con_servicio_caido_es_none_y_queda_en_el_log(cliente_auth, caplog):
     cliente_auth.get_user.side_effect = ConnectionError("sin internet")
 
     with caplog.at_level("ERROR"):
-        assert autenticacion.correo_del_token("jwt") is None
+        assert autenticacion.usuario_del_token("jwt") is None
 
     assert "No se pudo validar el token" in caplog.text
