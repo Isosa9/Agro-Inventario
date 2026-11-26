@@ -1,9 +1,12 @@
-"""Acceso a la tabla producto. Solo lee y escribe datos: sin reglas de negocio."""
+"""Adaptador de producción: implementa RepositorioProductos con Supabase.
+
+Solo lee y escribe datos: sin reglas de negocio.
+"""
 
 from supabase import Client
 
 
-class ProductoRepositorio:
+class RepositorioProductosSupabase:
     TABLA = "producto"
 
     def __init__(self, cliente: Client):

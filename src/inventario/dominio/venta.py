@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
 
-from inventario.validadores.reglas import (
+from inventario.dominio.reglas import (
     validar_cantidad_venta,
     validar_id,
     validar_precio,

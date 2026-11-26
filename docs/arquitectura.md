@@ -7,6 +7,7 @@ Documento vivo: se actualiza en cada etapa. Las decisiones importantes se regist
 |---|---|
 | [ADR-001](adr/ADR-001-persistencia.md) | Usar PostgreSQL gestionado en Supabase con la venta como transacción atómica en la base de datos |
 | [ADR-002](adr/ADR-002-autenticacion.md) | Usar Supabase Auth con sesión en cookie HttpOnly validada en el servidor |
+| [ADR-003](adr/ADR-003-arquitectura-cebolla.md) | Organizar el código en anillos (dominio, casos de uso, adaptadores) con puertos |
 
 ## 1. Requisitos funcionales
 
@@ -85,46 +86,44 @@ flowchart LR
     web -->|"Inicia sesión y<br/>valida tokens"| auth
 ```
 
-### Nivel 3 - Componentes de la aplicación web
+### Nivel 3 - Componentes: la regla de la cebolla
+
+Las dependencias apuntan siempre hacia el centro (detalle en [ADR-003](adr/ADR-003-arquitectura-cebolla.md)).
+`tests/unitarias/test_arquitectura.py` lo verifica en cada PR.
 
 ```mermaid
-flowchart TB
-    navegador([Navegador]) -->|HTTPS| app
+flowchart LR
+    navegador([Navegador]) -->|HTTPS| web
 
-    subgraph web["Aplicación web (src/inventario)"]
-        app["web/app.py<br/>Arma rutas, healthcheck y errores"]
-        sesion["web/sesion.py<br/>/login, /logout y correo_requerido"]
-        portal["web/portal.py<br/>/portal"]
-        salud["web/salud.py<br/>Comprueba la base de datos"]
-        autent["web/autenticacion.py<br/>Supabase Auth"]
-        plantillas["web/plantillas.py<br/>Jinja2"]
-        servicios["servicios/<br/>Reglas de negocio (Etapas 7-9)"]
-        validadores["validadores/ y modelos/<br/>Reglas y entidades del dominio"]
-        repos["repositorios/<br/>ProductoRepositorio"]
-        cliente["db/cliente.py<br/>Conexión única"]
-        config["config.py<br/>Lee .env"]
+    subgraph borde["🧱 Adaptadores (borde)"]
+        web["web/<br/>FastAPI: portal, login, health"]
+        supa["adaptadores/<br/>RepositorioProductosSupabase"]
+        memoria["adaptadores/<br/>RepositorioProductosEnMemoria"]
+        db["db/cliente.py"]
     end
 
-    app --> sesion
-    app --> portal
-    app --> salud
-    sesion --> autent
-    sesion --> plantillas
-    portal -->|exige sesión| sesion
-    portal --> repos
-    portal -.-> servicios
-    servicios -.-> validadores
-    servicios -.-> repos
-    repos --> cliente
-    salud --> cliente
-    autent --> config
-    cliente --> config
+    subgraph medio["⚙️ Casos de uso"]
+        resumen["casos_de_uso/<br/>obtener_resumen_inventario"]
+    end
 
-    cliente -->|PostgREST| db[(PostgreSQL)]
-    autent -->|Auth API| auth[[Supabase Auth]]
+    subgraph centro["🎯 Dominio"]
+        puerto["puertos.py<br/>RepositorioProductos"]
+        entidades["producto.py · venta.py<br/>reglas.py"]
+    end
+
+    web --> resumen
+    resumen --> puerto
+    resumen --> entidades
+    supa -. implementa .-> puerto
+    memoria -. implementa .-> puerto
+    memoria --> entidades
+    supa --> db
+    db -->|PostgREST| pg[(PostgreSQL)]
+    web -->|Auth API| auth[[Supabase Auth]]
 ```
 
-Las flechas punteadas son componentes planeados para las próximas etapas.
+`RepositorioProductosEnMemoria` se usa en las pruebas; en producción, `web/portal.py` enchufa
+`RepositorioProductosSupabase`.
 
 ## 3. Modelo de datos (Supabase / PostgreSQL)
 
@@ -191,12 +190,11 @@ Scripts en `supabase/migraciones/`, ejecutados en orden. Son la única fuente de
 | `web/app.py` | Arma la aplicación: rutas, healthcheck, errores | ✅ |
 | `web/sesion.py` | Login, logout y dependencia `correo_requerido` | ✅ |
 | `web/autenticacion.py` | Habla con Supabase Auth (iniciar sesión, validar token) | ✅ |
-| `web/portal.py` | Portal privado; su repositorio depende de la sesión | ✅ |
+| `web/portal.py` | Portal privado; llama al caso de uso y elige el adaptador real | ✅ |
 | `web/plantillas.py` | Configuración única de Jinja2 | ✅ |
-| `repositorios/` | Leer/escribir en Supabase, sin lógica de negocio | 🔄 |
-| `modelos/` | Representar datos del dominio (inmutables, válidos por construcción) | ✅ |
-| `validadores/` | Reglas del negocio: precio, cantidad, nombre, ids, venta sin repetidos | ✅ |
-| `servicios/` | Reglas de negocio; reciben repositorios por parámetro (mockeables) | ⏳ Etapas 7-9 |
+| `adaptadores/` | Implementan los puertos: Supabase (producción) y memoria (pruebas) | ✅ |
+| `dominio/` | Entidades (`Producto`, `Venta`…), reglas y puertos; sin frameworks | ✅ |
+| `casos_de_uso/` | Lo que el usuario puede hacer; reciben el repositorio por parámetro | 🔄 Crece en las Etapas 7-9 |
 | `db/cliente.py` | Crear la conexión una sola vez | ✅ |
 | `config.py` | Leer `.env` | ✅ |
 | `errores.py` | Excepciones propias | ✅ |
@@ -237,6 +235,7 @@ Commits con Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`
 | Modelo de datos exportado | ✅ | Políticas RLS explícitas, `exportar_esquema()`, `docs/db-export.json` |
 | Calidad de código | ✅ | Dependencias bloqueadas con hash, ruff, cobertura, SonarCloud, página 500, DRY del cliente |
 | 6. Modelos y validadores | ✅ | `Producto`, `ItemVenta`, `DetalleVenta`, `Venta`; reglas con `Decimal`; 100 % de cobertura |
+| Arquitectura de cebolla | ✅ | `dominio/`, `casos_de_uso/`, `adaptadores/`, puerto `RepositorioProductos`, repositorio en memoria, prueba de arquitectura; ADR-003 |
 | 7. Productos | ⏳ | |
 | 8. Ventas | ⏳ | |
 | 9. Reportes | ⏳ | |

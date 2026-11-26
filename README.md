@@ -35,20 +35,24 @@ agroquímicos y concentrados que se venden por unidad o por peso (libras, quinta
 
 ## Arquitectura
 
+Arquitectura de cebolla (puertos y adaptadores): las dependencias apuntan siempre hacia el centro.
+
 ```
-Web (FastAPI) → Servicios → (Validadores, Repositorios) → Cliente Supabase
+web (FastAPI) ──▶ casos_de_uso ──▶ dominio ◀── adaptadores (Supabase, memoria)
 ```
 
-- **Web:** páginas HTML, healthcheck `/api/health` y PWA (manifest, service worker, íconos).
-- **Sesión:** login con Supabase Auth; la sesión viaja en una cookie `HttpOnly` y `Secure`.
-  `/portal` exige sesión válida en el servidor: sin ella redirige a `/login` sin consultar datos.
-
-- **Modelos** (`modelos/`): `Producto`, `ItemVenta`, `DetalleVenta` y `Venta`. Inmutables y válidos
-  por construcción: no se pueden crear con datos inválidos.
-- **Validadores** (`validadores/reglas.py`): precio > 0 con 2 decimales, cantidad >= 0 con 3 decimales,
-  nombre obligatorio, venta sin productos repetidos. Usan `Decimal` (nunca `float`) y aceptan coma decimal.
-- **Repositorios:** único lugar que lee y escribe en Supabase.
-- **Servicios:** lógica de negocio; reciben los repositorios por parámetro para poder probarse con mocks.
+- **Dominio** (`dominio/`): `Producto`, `ItemVenta`, `DetalleVenta` y `Venta`, inmutables y válidos por
+  construcción; reglas del negocio en `reglas.py` (precio > 0 con 2 decimales, cantidad ≥ 0 con 3 decimales,
+  `Decimal` en lugar de `float`, coma decimal aceptada); puerto `RepositorioProductos` en `puertos.py`.
+  No importa frameworks ni Supabase.
+- **Casos de uso** (`casos_de_uso/`): lo que el usuario puede hacer. Reciben el repositorio por parámetro.
+- **Adaptadores** (`adaptadores/`): `RepositorioProductosSupabase` para producción y
+  `RepositorioProductosEnMemoria` para probar casos de uso sin internet.
+- **Web** (`web/`): adaptador de entrada con páginas HTML, healthcheck `/api/health` y PWA.
+  Login con Supabase Auth; la sesión viaja en una cookie `HttpOnly` y `Secure`, y `/portal` exige
+  sesión válida en el servidor.
+- `tests/unitarias/test_arquitectura.py` verifica en cada PR que el dominio y los casos de uso
+  no importen nada de los anillos exteriores.
 
 La venta se registra con una **función atómica de PostgreSQL** (`registrar_venta`): valida existencias,
 descuenta el inventario y guarda la venta en una sola transacción. Si un producto no alcanza, no se guarda nada.
@@ -58,6 +62,7 @@ Detalle completo, con diagramas C4, en [docs/arquitectura.md](docs/arquitectura.
 Decisiones de arquitectura (ADRs):
 - [ADR-001: PostgreSQL gestionado en Supabase con venta atómica](docs/adr/ADR-001-persistencia.md)
 - [ADR-002: Supabase Auth con sesión en cookie HttpOnly](docs/adr/ADR-002-autenticacion.md)
+- [ADR-003: Arquitectura de cebolla con puertos y adaptadores](docs/adr/ADR-003-arquitectura-cebolla.md)
 
 ## Modelo de datos
 
@@ -159,7 +164,7 @@ La rama `main` está protegida: no se puede hacer merge si el CI falla.
 
 ```
 app.py                 punto de entrada para Vercel
-src/inventario/        código de la aplicación (web/, db/, config...)
+src/inventario/        código: dominio/, casos_de_uso/, adaptadores/, web/, db/
 public/                archivos estáticos: CSS, JS, PWA, íconos, robots.txt
 tests/unitarias/       pruebas aisladas con mocks
 tests/integracion/     pruebas contra Supabase real
@@ -184,6 +189,7 @@ secretos fuera del repositorio (`.env` en `.gitignore`).
 | 4. Sitio web publicado en Vercel (PWA, SEO, healthcheck) | ✅ |
 | 5. Login y portal privado | ✅ |
 | 6. Modelos y validadores | ✅ |
+| Arquitectura de cebolla (puertos y adaptadores) | ✅ |
 | 7. Productos | ⏳ |
 | 8. Ventas | ⏳ |
 | 9. Reportes | ⏳ |

@@ -5,9 +5,9 @@ from decimal import Decimal
 
 import pytest
 
+from inventario.dominio.producto import Producto
+from inventario.dominio.venta import DetalleVenta, ItemVenta, Venta, validar_items_venta
 from inventario.errores import ValidacionError
-from inventario.modelos.producto import Producto
-from inventario.modelos.venta import DetalleVenta, ItemVenta, Venta, validar_items_venta
 
 
 def producto(**cambios):
