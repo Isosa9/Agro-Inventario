@@ -1,5 +1,8 @@
 // Service worker de AgroInventario.
-// - Archivos estáticos: se guardan en caché al instalar (carga rápida y sin conexión).
+// - Archivos estáticos: se guardan en caché al instalar y se sirven con
+//   stale-while-revalidate: respuesta inmediata desde la caché y, en paralelo,
+//   se descarga la versión nueva para la próxima visita. Así un cambio de estilos
+//   llega a los usuarios sin quedar congelado (con cache-first nunca se actualizaban).
 // - Páginas: se piden a la red; si no hay conexión se muestra /offline.html.
 // - La API (/api/) nunca se guarda en caché: los datos de inventario deben ser actuales.
 
@@ -43,7 +46,18 @@ self.addEventListener("fetch", (evento) => {
     return;
   }
 
-  evento.respondWith(
-    caches.match(request).then((enCache) => enCache || fetch(request))
-  );
+  evento.respondWith(desdeCacheYActualizar(evento, request));
 });
+
+async function desdeCacheYActualizar(evento, request) {
+  const cache = await caches.open(VERSION);
+  const enCache = await cache.match(request);
+  const desdeRed = fetch(request)
+    .then((respuesta) => {
+      if (respuesta.ok) cache.put(request, respuesta.clone());
+      return respuesta;
+    })
+    .catch(() => enCache);
+  evento.waitUntil(desdeRed); // la actualización termina aunque ya se haya respondido
+  return enCache || desdeRed;
+}
