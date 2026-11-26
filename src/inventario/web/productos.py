@@ -96,7 +96,6 @@ def lista(
             "usuario": usuario,
             "productos": casos.listar_productos(productos, busqueda=q, solo_agotados=agotados),
             "categorias": {c.id: c.nombre for c in catalogos.listar_categorias()},
-            "unidades": {u.id: u.abreviatura for u in catalogos.listar_unidades()},
             "q": q,
             "agotados": agotados,
             "guardado": guardado,

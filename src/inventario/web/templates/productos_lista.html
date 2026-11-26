@@ -47,9 +47,7 @@
       </td>
       <td data-etiqueta="Categoría">{{ categorias.get(producto.categoria_id, "—") }}</td>
       <td data-etiqueta="Precio" class="numero">{{ producto.precio|lempiras }}</td>
-      <td data-etiqueta="Existencia" class="numero">
-        {{ producto.cantidad|cantidad }} {{ unidades.get(producto.unidad_medida_id, "") }}
-      </td>
+            <td data-etiqueta="Existencia" class="numero">{{ producto.cantidad|cantidad }}</td>
       <td><a href="/portal/productos/{{ producto.id }}/editar">Editar<span class="solo-lectores"> {{ producto.nombre }}</span></a></td>
     </tr>
     {% endfor %}

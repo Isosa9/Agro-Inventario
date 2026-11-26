@@ -93,7 +93,8 @@ def test_lista_muestra_productos_con_formato(navegador):
     assert respuesta.status_code == 200
     assert "Catosal 100 ml" in respuesta.text
     assert "L 950.00" in respuesta.text
-    assert "2.5 lb" in respuesta.text  # sin ceros de más y con su unidad
+    assert '<td data-etiqueta="Existencia" class="numero">2.5</td>' in respuesta.text  # sin ceros
+    assert "2.5 lb" not in respuesta.text  # la existencia se muestra sin unidad
     assert "Vitaminas y minerales" in respuesta.text
     assert "3 productos" in respuesta.text
     assert respuesta.headers["cache-control"] == "no-store"
