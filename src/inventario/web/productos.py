@@ -13,7 +13,8 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from inventario.casos_de_uso import productos as casos
 from inventario.dominio.producto import Producto
 from inventario.errores import ProductoNoEncontradoError, ValidacionError
-from inventario.web.dependencias import Catalogos, CorreoSesion, Productos, pagina_privada
+from inventario.web.autenticacion import UsuarioSesion
+from inventario.web.dependencias import Catalogos, Productos, UsuarioActual, pagina_privada
 
 router = APIRouter(prefix="/portal/productos")
 
@@ -54,7 +55,7 @@ def _producto_desde_formulario(
 
 def _formulario(
     request: Request,
-    correo: str,
+    usuario: UsuarioSesion,
     catalogos: Catalogos,
     *,
     valores: dict,
@@ -66,7 +67,7 @@ def _formulario(
         request,
         "producto_formulario.html",
         {
-            "correo": correo,
+            "usuario": usuario,
             "titulo": titulo,
             "accion": accion,
             "valores": valores,
@@ -81,7 +82,7 @@ def _formulario(
 @router.get("", response_class=HTMLResponse)
 def lista(
     request: Request,
-    correo: CorreoSesion,
+    usuario: UsuarioActual,
     productos: Productos,
     catalogos: Catalogos,
     q: str = "",
@@ -92,7 +93,7 @@ def lista(
         request,
         "productos_lista.html",
         {
-            "correo": correo,
+            "usuario": usuario,
             "productos": casos.listar_productos(productos, busqueda=q, solo_agotados=agotados),
             "categorias": {c.id: c.nombre for c in catalogos.listar_categorias()},
             "unidades": {u.id: u.abreviatura for u in catalogos.listar_unidades()},
@@ -104,10 +105,10 @@ def lista(
 
 
 @router.get("/nuevo", response_class=HTMLResponse)
-def formulario_nuevo(request: Request, correo: CorreoSesion, catalogos: Catalogos):
+def formulario_nuevo(request: Request, usuario: UsuarioActual, catalogos: Catalogos):
     return _formulario(
         request,
-        correo,
+        usuario,
         catalogos,
         valores={},
         accion="/portal/productos/nuevo",
@@ -118,7 +119,7 @@ def formulario_nuevo(request: Request, correo: CorreoSesion, catalogos: Catalogo
 @router.post("/nuevo", response_class=HTMLResponse)
 def crear(
     request: Request,
-    correo: CorreoSesion,
+    usuario: UsuarioActual,
     productos: Productos,
     catalogos: Catalogos,
     nombre: Campo = "",
@@ -133,7 +134,7 @@ def crear(
     except ValidacionError as error:
         return _formulario(
             request,
-            correo,
+            usuario,
             catalogos,
             valores=valores,
             accion="/portal/productos/nuevo",
@@ -147,14 +148,14 @@ def crear(
 def formulario_editar(
     request: Request,
     producto_id: int,
-    correo: CorreoSesion,
+    usuario: UsuarioActual,
     productos: Productos,
     catalogos: Catalogos,
 ):
     producto = _obtener_o_404(productos, producto_id)
     return _formulario(
         request,
-        correo,
+        usuario,
         catalogos,
         valores=_valores_formulario(
             producto.nombre,
@@ -172,7 +173,7 @@ def formulario_editar(
 def actualizar(
     request: Request,
     producto_id: int,
-    correo: CorreoSesion,
+    usuario: UsuarioActual,
     productos: Productos,
     catalogos: Catalogos,
     nombre: Campo = "",
@@ -190,7 +191,7 @@ def actualizar(
     except ValidacionError as error:
         return _formulario(
             request,
-            correo,
+            usuario,
             catalogos,
             valores=valores,
             accion=f"/portal/productos/{producto_id}/editar",

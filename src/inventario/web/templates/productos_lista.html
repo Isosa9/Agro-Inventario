@@ -3,6 +3,8 @@
 {% block titulo %}Productos · AgroInventario{% endblock %}
 
 {% block portal %}
+<p><a class="volver" href="/portal">← Volver al inicio</a></p>
+
 <div class="encabezado-seccion">
   <h1>{% if agotados %}Productos agotados{% else %}Productos{% endif %}</h1>
   <a class="boton" href="/portal/productos/nuevo">+ Nuevo producto</a>

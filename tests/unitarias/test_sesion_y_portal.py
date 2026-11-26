@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from inventario.errores import AutenticacionError
 from inventario.web import autenticacion
 from inventario.web.app import app
-from inventario.web.autenticacion import Sesion
+from inventario.web.autenticacion import Sesion, UsuarioSesion
 from inventario.web.dependencias import repositorio_productos
 from inventario.web.sesion import COOKIE_SESION
 
@@ -40,7 +40,9 @@ def repositorio():
 def tokens(monkeypatch):
     """Solo TOKEN_VALIDO es una sesión válida."""
     monkeypatch.setattr(
-        autenticacion, "correo_del_token", lambda token: CORREO if token == TOKEN_VALIDO else None
+        autenticacion,
+        "usuario_del_token",
+        lambda token: UsuarioSesion(CORREO, "Dueña") if token == TOKEN_VALIDO else None,
     )
 
 
@@ -129,6 +131,8 @@ def test_portal_con_sesion_muestra_resumen(navegador, repositorio):
 
     assert respuesta.status_code == 200
     assert CORREO in respuesta.text
+    assert "Hola, Dueña" in respuesta.text
+    assert "Resumen</a>" not in respuesta.text  # sin menú duplicado
     assert ">58<" in respuesta.text
     assert ">3<" in respuesta.text
     assert respuesta.headers["cache-control"] == "no-store"
